@@ -1,0 +1,4 @@
+#!/bin/bash
+# Arrête l'instance en cours avant la mise à jour.
+/usr/bin/pkill -x DisplayPilot 2>/dev/null || true
+exit 0

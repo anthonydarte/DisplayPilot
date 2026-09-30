@@ -1,0 +1,15 @@
+#!/bin/bash
+# Droits du LaunchAgent + démarrage immédiat pour l'utilisateur connecté.
+AGENT="/Library/LaunchAgents/fr.darte.DisplayPilot.agent.plist"
+chown root:wheel "$AGENT"
+chmod 644 "$AGENT"
+xattr -dr com.apple.quarantine /Applications/DisplayPilot.app 2>/dev/null || true
+
+CONSOLE_USER=$(/usr/bin/stat -f %Su /dev/console)
+if [ -n "$CONSOLE_USER" ] && [ "$CONSOLE_USER" != "root" ] && [ "$CONSOLE_USER" != "loginwindow" ]; then
+  UID_NUM=$(/usr/bin/id -u "$CONSOLE_USER")
+  /bin/launchctl bootout "gui/$UID_NUM/fr.darte.DisplayPilot.agent" 2>/dev/null || true
+  /bin/launchctl bootstrap "gui/$UID_NUM" "$AGENT" 2>/dev/null \
+    || /bin/launchctl asuser "$UID_NUM" /usr/bin/open -a /Applications/DisplayPilot.app
+fi
+exit 0

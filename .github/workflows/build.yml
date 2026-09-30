@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versions
+        run: |
+          sw_vers
+          swift --version
+
+      - name: Build (arm64, signature ad-hoc)
+        run: bash scripts/build.sh
+
+      - name: Package (pkg non signé, pour test uniquement)
+        run: bash scripts/make-pkg.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DisplayPilot-ci
+          path: |
+            build/DisplayPilot.app
+            dist/*.pkg
+          retention-days: 14
